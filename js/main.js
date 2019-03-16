@@ -1,4 +1,5 @@
-
+//这段程序的思想是，先写css代码，这段代码同时写在code里和styleTag里，然后开通一个新的paper
+//将简历写在paper中，再将paper的markdown变成html
 
 
 var result = `/*
@@ -49,7 +50,10 @@ body{
     display:flex;
     justify-content:center;
     align-items:center;
+    /*justify-content和align-items是控制flex子项在flex容器里两个方向的对齐方式的*/
+    /*这里paper是flex容器，只有一个子项content，因此把这两句话去掉也无变化*/
     padding:16px;
+    /*注意，background不包括margin部分，所以如果这里写成margin，则content背后的黑色显示不出来*/
 }
 #paper>#content{
     background:white;
@@ -74,6 +78,7 @@ function writeCode(prefix,code,fn) {
         //每次代码有变动，就往下拉10000像素（最底部）
         //等于domCode.scrollHeight，也表示拉到最底部
         if (n >= code.length) {
+            //注意，这里的code不是id为code的元素，而是result
             window.clearInterval(id)
             fn.call()
         }
@@ -130,12 +135,10 @@ writeCode('',result,()=>{
         })
     })
 })
-console.log(3)
 
 function mdToHtml(){
-    console.log(document.getElementById('content').innerHTML)
     document.getElementById('content').innerHTML =marked(document.getElementById('content').innerHTML);
-    console.log(4)
+    //marked是marked.js中的函数，将markdown转变为html
 }
 
 
@@ -159,11 +162,10 @@ function createPaper(fn) {
     var paper = document.createElement('div')
     paper.id = 'paper'
     var content=document.createElement('pre')  
-    //pre标签内的内容会自动换行，div不会自动换行
+    //pre标签内的内容会保留换行，div不会保留
     content.id='content'
     paper.appendChild(content)
     document.body.appendChild(paper)
-    console.log(2)
     fn.call()
 }
 
@@ -177,7 +179,6 @@ function fn3(preResult) {
         //code.innerHTML=Prism.highlight(code.innerHTML, Prism.languages.css, 'javascript');
         //第一段程序运行的结果经prism处理后已经有span标签（高亮用）了，再添加程序会错乱
         code.innerHTML = preResult + result.substring(0, n)
-        //还是不明白为什么？
         code.innerHTML = Prism.highlight(code.innerHTML, Prism.languages.css, 'javascript')
         styleTag.innerHTML = preResult + result.substring(0, n)
         if (n >= result.length) {
